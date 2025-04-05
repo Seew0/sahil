@@ -1,0 +1,25 @@
+<h1>Drafter Dashboard</h1>
+<p>Welcome, <%= user.email %></p>
+
+<% if (typeof success !== 'undefined') { %>
+    <div class="alert alert-success">
+        Form <%= success %> submitted successfully!
+    </div>
+<% } %>
+
+<div class="dashboard-container">
+    <div class="card">
+        <h2>Available Forms</h2>
+        <div class="form-buttons">
+            <a href="/dashboard/drafter/form1" class="btn btn-primary">
+                Form 1
+            </a>
+            <a href="/dashboard/drafter/form2" class="btn btn-primary">
+                Form 2
+            </a>
+            <a href="/dashboard/drafter/form3" class="btn btn-primary">
+                Form 3
+            </a>
+        </div>
+    </div>
+</div>

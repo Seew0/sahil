@@ -1,0 +1,61 @@
+<h1>Admin Dashboard</h1>
+<p>Welcome, <%= user.email %>. You have administrator privileges.</p>
+
+
+
+<section>
+  <h2>User Management</h2>
+  
+  <!-- Add User Form (keep existing) -->
+  <div class="card mb-4">
+    <!-- ... existing add user form ... -->
+  </div>
+
+  <!-- Users List -->
+  <div class="card">
+    <div class="card-header">Current Users</div>
+    <div class="card-body">
+      <% if (typeof users !== 'undefined' && users.length > 0) { %>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(user => { %>
+              <tr>
+                <td><%= user[0] %></td>
+                <td><%= user[2] %></td>
+                <td>
+                  <!-- Update Form -->
+                  <form action="/dashboard/admin/users/<%= user[0] %>" method="POST" class="form-inline d-inline">
+                    <input type="email" name="newEmail" value="<%= user[0] %>" class="form-control form-control-sm">
+                    <input type="password" name="password" placeholder="New password" class="form-control form-control-sm">
+                    <select name="role" class="form-control form-control-sm">
+                      <option value="admin" <%= user[2] === 'admin' ? 'selected' : '' %>>Admin</option>
+                      <option value="drafter" <%= user[2] === 'drafter' ? 'selected' : '' %>>Drafter</option>
+                      <option value="checker" <%= user[2] === 'checker' ? 'selected' : '' %>>Checker</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-warning">Update</button>
+                  </form>
+                  
+                  <!-- Delete Form -->
+                  <form action="/dashboard/admin/users/<%= user[0] %>/delete" method="POST" class="d-inline ml-2">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } else if (typeof users !== 'undefined') { %>
+        <div class="alert alert-info">No users found in the system.</div>
+      <% } else { %>
+        <div class="alert alert-warning">User data not available.</div>
+      <% } %>
+    </div>
+  </div>
+</section>

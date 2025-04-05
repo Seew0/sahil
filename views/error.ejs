@@ -1,0 +1,12 @@
+
+<div class="container">
+    <h1><%= title %></h1>
+    <div class="alert alert-danger">
+        <%= message %>
+    </div>
+    <% if (user) { %>
+        <a href="/dashboard" class="btn btn-primary">Return to Dashboard</a>
+    <% } else { %>
+        <a href="/login" class="btn btn-primary">Go to Login</a>
+    <% } %>
+</div>

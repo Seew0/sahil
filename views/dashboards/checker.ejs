@@ -1,0 +1,185 @@
+<h1>Checker Dashboard</h1>
+<p>Welcome, <%= user.email %></p>
+
+<% if (typeof success !== 'undefined') { %>
+  <div class="alert alert-<%= success === 'approved' ? 'success' : 'warning' %>">
+    Submission <%= success === 'approved' ? 'approved' : 'rejected' %> successfully!
+  </div>
+<% } %>
+
+<div class="form-type-tabs">
+  <button class="tab-btn active" data-form="form1">Form 1</button>
+  <button class="tab-btn" data-form="form2">Form 2</button>
+  <button class="tab-btn" data-form="form3">Form 3</button>
+</div>
+
+<div class="submissions-list">
+  <% ['form1', 'form2', 'form3'].forEach(formType => { %>
+    <div class="form-content <%= formType === 'form1' ? 'active' : '' %>" id="<%= formType %>-content">
+      <% if (submissions[formType] && submissions[formType].length > 0) { %>
+        <% submissions[formType].forEach(sub => { %>
+          <div class="submission-card">
+            <div class="submission-header">
+              <h3>Form: <%= formType.toUpperCase() %></h3>
+              <span class="badge badge-<%= (sub[5] || 'Pending') === 'Pending' ? 'warning' : 
+                                          (sub[5] === 'Approved' ? 'success' : 'danger') %>">
+                <%= sub[5] || 'Pending' %>
+              </span>
+            </div>
+            
+            <div class="submission-details">
+              <p><strong>Drafter:</strong> <%= sub[1] || 'Unknown' %></p>
+              <p><strong>Submitted:</strong> <%= sub[0] ? new Date(sub[0]).toLocaleString() : 'Unknown date' %></p>
+              
+              <form action="/dashboard/approve/<%= formType %>/<%= sub[0] %>" method="POST">
+                <div class="form-data">
+                  <h4>Form Data:</h4>
+                  <div class="editable-fields">
+                    <div class="form-group">
+                      <label>Field 1:</label>
+                      <input type="text" name="field1" value="<%= sub[2] || '' %>">
+                    </div>
+                    <div class="form-group">
+                      <label>Field 2:</label>
+                      <input type="text" name="field2" value="<%= sub[3] || '' %>">
+                    </div>
+                    <div class="form-group">
+                      <label>Field 3:</label>
+                      <input type="text" name="field3" value="<%= sub[4] || '' %>">
+                    </div>
+                  </div>
+                </div>
+
+                <% if (sub[6]) { %>
+                  <div class="checker-comments">
+                    <h4>Previous Comments:</h4>
+                    <p><%= sub[6] %></p>
+                  </div>
+                <% } %>
+
+                <% if ((sub[5] || 'Pending') === 'Pending') { %>
+                  <div class="checker-actions">
+                    <div class="form-group">
+                      <label>Your Comments:</label>
+                      <textarea name="comments" class="form-control" placeholder="Enter comments..."></textarea>
+                    </div>
+                    <div class="action-buttons">
+                      <button type="submit" class="btn btn-success">Approve</button>
+                      <button type="button" class="btn btn-danger" 
+                        onclick="event.preventDefault(); document.getElementById('reject-form-<%= formType %>-<%= sub[0] %>').submit()">
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="approval-info">
+                    <p><strong>Processed by:</strong> <%= sub[7] || 'System' %></p>
+                    <% if (sub[8]) { %>
+                      <p><strong>On:</strong> <%= new Date(sub[8]).toLocaleString() %></p>
+                    <% } %>
+                  </div>
+                <% } %>
+              </form>
+              
+              <form id="reject-form-<%= formType %>-<%= sub[0] %>" 
+                    action="/dashboard/reject/<%= formType %>/<%= sub[0] %>" 
+                    method="POST" 
+                    class="d-none">
+                <input type="hidden" name="field1" value="<%= sub[2] || '' %>">
+                <input type="hidden" name="field2" value="<%= sub[3] || '' %>">
+                <input type="hidden" name="field3" value="<%= sub[4] || '' %>">
+                <input type="hidden" name="comments" value="">
+              </form>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="alert alert-info">
+          No pending <%= formType %> submissions to review.
+        </div>
+      <% } %>
+    </div>
+  <% }); %>
+</div>
+
+<script>
+  // Tab functionality
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Update active tab
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Show corresponding content
+      document.querySelectorAll('.form-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      document.getElementById(`${this.dataset.form}-content`).style.display = 'block';
+    });
+  });
+
+  // Copy form data to reject form
+  document.querySelectorAll('[onclick^="event.preventDefault()"]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const formId = this.getAttribute('onclick').match(/'reject-form-([^']+)'/)[1];
+      const form = document.querySelector(`form[id="reject-form-${formId}"]`);
+      const textarea = this.closest('.checker-actions').querySelector('textarea');
+      
+      form.querySelector('input[name="comments"]').value = textarea.value;
+      form.submit();
+    });
+  });
+</script>
+
+<style>
+  .form-type-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .form-content {
+    display: none;
+  }
+
+  .form-content.active {
+    display: block;
+  }
+  
+  .tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 3px solid transparent;
+  }
+  
+  .tab-btn.active {
+    border-bottom-color: #4CAF50;
+    color: #4CAF50;
+  }
+  
+  .editable-fields {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+  }
+  
+  .editable-fields .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .editable-fields input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+</style>
