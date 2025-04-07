@@ -51,4 +51,48 @@ router.post('/submit/form1', ensureDrafter, async (req, res) => {
     }
 });
 
+router.post('/submit/form2', ensureDrafter, async (req, res) => {
+    try {
+        const submissionData = {
+            drafter: req.session.user.email,
+            timestamp: new Date().toISOString(),
+            ...req.body
+        };
+
+        const success = await submitForm('form2', submissionData);
+        
+        if (success) {
+            return res.redirect('/dashboard/drafter?success=Form submitted successfully');
+        }
+        return res.redirect('/dashboard/drafter/form1?error=Submission failed');
+        
+    } catch (error) {
+        console.error('Form submission failed:', error);
+        return res.redirect('/dashboard/drafter/form2?error=' + 
+               encodeURIComponent(error.message));
+    }
+});
+
+router.post('/submit/form3', ensureDrafter, async (req, res) => {
+    try {
+        const submissionData = {
+            drafter: req.session.user.email,
+            timestamp: new Date().toISOString(),
+            ...req.body
+        };
+
+        const success = await submitForm('form3', submissionData);
+        
+        if (success) {
+            return res.redirect('/dashboard/drafter?success=Form submitted successfully');
+        }
+        return res.redirect('/dashboard/drafter/form1?error=Submission failed');
+        
+    } catch (error) {
+        console.error('Form submission failed:', error);
+        return res.redirect('/dashboard/drafter/form3?error=' + 
+               encodeURIComponent(error.message));
+    }
+});
+
 module.exports = router;

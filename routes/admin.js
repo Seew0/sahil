@@ -4,11 +4,6 @@ const { ensureAdmin } = require('../middlewares/auth');
 const { getAllUsers, addUser, updateUser, deleteUser } = require('../utils/googleSheets');
 
 // Enhanced debug middleware
-router.use((req, res, next) => {
-    console.log(`\n[ADMIN ROUTE] ${req.method} ${req.originalUrl}`);
-    console.log('Session User:', req.session.user);
-    next();
-});
 
 // Dashboard Home
 router.get('/', ensureAdmin, async (req, res) => {
@@ -17,6 +12,7 @@ router.get('/', ensureAdmin, async (req, res) => {
         const users = await getAllUsers();
         
         console.log(`[ADMIN] Fetched ${users.length} users`);
+        console.log('User data:', users);
         if (users.length > 0) {
             console.log('First user sample:', {
                 email: users[0][0],
@@ -120,6 +116,7 @@ router.post('/users/:email/delete', ensureAdmin, async (req, res) => {
 
 // Helper function to format users for display
 function formatUsersForDisplay(users) {
+    console.log('[ADMIN] Formatting users for display:', users);
     return users.map(user => ({
         email: user[0],
         password: user[1], // Note: In production, you shouldn't expose passwords

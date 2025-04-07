@@ -157,52 +157,475 @@
     }
   </style>
 </head>
-<body>
-  <div class="form-container">
-    <div class="form-header">
-      <h1>Form 1</h1>
-      <p>Please complete all required fields</p>
+  <body>
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Form 1</h1>
+        <p>Please complete all required fields</p>
+      </div>
+  
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert">
+          <%= error %>
+        </div>
+      <% } %>
+  
+      <form action="/dashboard/drafter/submit/form1" method="POST">  
+        <div class="form-group">
+          <label for="fileRefNo">File Reference No</label>
+          <input type="text" name="fileRefNo" id="fileRefNo" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="valuationPurpose">Purpose for which valuation is made</label>
+          <select name="valuationPurpose" id="valuationPurpose" class="form-control" required>
+            <option>Revaluation</option>
+            <option>Top up Loan</option>
+            <option>Fair Market Value</option>
+            <option>NPA</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="ownerName">Name of the Owner</label>
+          <input type="text" name="ownerName" id="ownerName" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="ownershipType">Type of Ownership</label>
+          <select name="ownershipType" id="ownershipType" class="form-control">
+            <option>Joint Ownership</option>
+            <option>Single Ownership</option>
+            <option>Company Authority</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="accountName">Accounts Name</label>
+          <input type="text" name="accountName" id="accountName" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="buyerName">Name of the Buyer</label>
+          <input type="text" name="buyerName" id="buyerName" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="bank">Bank</label>
+          <input type="text" name="bank" id="bank" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="branch">Branch</label>
+          <input type="text" name="branch" id="branch" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="visitDate">Date of Visit</label>
+          <input type="date" name="visitDate" id="visitDate" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="valuationDate">Valuation Date Made</label>
+          <input type="date" name="valuationDate" id="valuationDate" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="landmark">Landmark</label>
+          <input type="text" name="landmark" id="landmark" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label>List of documents in Favor of</label>
+          <select name="documentFav1" class="form-control">
+            <option>Owner</option>
+            <option>Buyer</option>
+          </select>
+          <select name="documentFav2" class="form-control">
+            <option>Owner</option>
+            <option>Buyer</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label>Document 1</label>
+          <select name="documentName1" class="form-control">
+            <option>Conveyance Deed</option>
+            <option>Old Valuation</option>
+            <option>Sale Deed</option>
+            <option>Lease Deed</option>
+            <option>Relinquishment Deed</option>
+            <option>Blood Relation Deed</option>
+            <option>Builder Buyer Agreement</option>
+            <option>Agreement to Sell</option>
+            <option>Legal Report</option>
+            <option>Allotment Letter</option>
+            <option>Tripartie Agreement</option>
+            <option>NA</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label>Document 2</label>
+          <select name="documentName2" class="form-control">
+            <option>Conveyance Deed</option>
+            <option>Old Valuation</option>
+            <option>Sale Deed</option>
+            <option>Lease Deed</option>
+            <option>Relinquishment Deed</option>
+            <option>Blood Relation Deed</option>
+            <option>Builder Buyer Agreement</option>
+            <option>Agreement to Sell</option>
+            <option>Legal Report</option>
+            <option>Allotment Letter</option>
+            <option>Tripartie Agreement</option>
+            <option>NA</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="documentNumber">Number</label>
+          <input type="text" name="documentNumber" id="documentNumber" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="documentDate">Dated</label>
+          <input type="date" name="documentDate" id="documentDate" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="documentInFavour1">In Favour of</label>
+          <select name="documentInFavour1" id="documentInFavour1" class="form-control">
+            <option>Owner</option>
+            <option>Buyer</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="documentInFavour2">In Favour of</label>
+          <select name="documentInFavour2" id="documentInFavour2" class="form-control">
+            <option>Owner</option>
+            <option>Buyer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="areaFromDoc">Area Taken from Document</label>
+          <select name="areaFromDoc" class="form-control">
+            <option>Sale Deed</option>
+            <option>Conveyance Deed</option>
+            <option>Lease Deed</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="freeHold">Free Hold</label>
+          <select name="freeHold" class="form-control">
+            <option>Free Hold</option>
+            <option>Lease Hold</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="floorNo1">Floor No.</label>
+          <input type="text" name="floorNo1" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="floorNo2">Floor No.</label>
+          <input type="text" name="floorNo2" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="plotNo">Plot No. / Survey No.</label>
+          <input type="text" name="plotNo" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="accommodation">Accommodation</label>
+          <input type="text" name="accommodation" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="tsVillage">T.S No. / Village</label>
+          <input type="text" name="tsVillage" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="cityPincode">City with Pincode</label>
+          <input type="text" name="cityPincode" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="mapDetails">MAP/OC Details</label>
+          <input type="text" name="mapDetails" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="mapAuthority">MAP Issuing Authority</label>
+          <select name="mapAuthority" class="form-control">
+            <option>DTCP</option>
+            <option>MCD</option>
+            <option>DDA</option>
+            <option>MCG</option>
+            <option>DTP</option>
+            <option>MC Sohna</option>
+            <option>MC Bahadurgarh</option>
+            <option>NOIDA</option>
+            <option>MC Faridabad</option>
+            <option>HUDA</option>
+            <option>GNIDA</option>
+            <option>MC Manesar</option>
+            <option>YEIDA</option>
+            <option>GDA</option>
+            <option>RIICO</option>
+            <option>Mc Gurgaon</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="genuinenessComment">Genuineness Comment</label>
+          <select name="genuinenessComment" class="form-control">
+            <option>As Above</option>
+            <option>Yes, Duly Signed by Concerned Authority</option>
+            <option>Yes, Digitally Signed by Concerned Authority</option>
+            <option>Duly Signed and Stamped by the Authority</option>
+            <option>Yes, Verified Online</option>
+            <option>N.A</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="locality">Classification of Locality</label>
+          <select name="locality" class="form-control">
+            <option>Residential</option>
+            <option>Commercial</option>
+            <option>Mixed</option>
+            <option>Industrial</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="usePurpose">Is it being used for residential or commercial purposes?</label>
+          <select name="usePurpose" class="form-control">
+            <option>For Residential Purpose</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="corporationLimit">Coming Under Corporation Limit / Village Panchayat / Municipality</label>
+          <input type="text" name="corporationLimit" class="form-control" value="Mc Gurgaon" />
+        </div>
+  
+        <div class="form-group">
+          <label for="apartmentNature">Nature of the Apartment</label>
+          <select name="apartmentNature" class="form-control">
+            <option>Developer Flat</option>
+            <option>CGHS Flat</option>
+            <option>Authority Flat</option>
+            <option>Builder Flat</option>
+            <option>Developer Floor</option>
+            <option>Builder Floor</option>
+            <option>Commercial Unit</option>
+            <option>Commercial Office Unit</option>
+            <option>Commercial Retail Unit</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="structureType">Type of Structure</label>
+          <select name="structureType" class="form-control">
+            <option>RCC Frame Structure</option>
+            <option>RCC With Load Bearing Wall</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="noOfFloors">No. of Floors</label>
+          <input type="text" name="noOfFloors" class="form-control" value="B+G+19" />
+        </div>
+  
+        <div class="form-group">
+          <label for="dwellingUnits">No. of Dwelling Units</label>
+          <select name="dwellingUnits" class="form-control">
+            <option>One</option>
+            <option>Two</option>
+            <option>Three</option>
+            <option>Four</option>
+            <option>Five</option>
+            <option>Six</option>
+            <option>Seven</option>
+            <option>Eight</option>
+            <option>Nine</option>
+            <option>Multiple Dwelling</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="propertyCondition">Condition of the Property</label>
+          <select name="propertyCondition" class="form-control">
+            <option>Under Construction</option>
+            <option>Poor</option>
+            <option>Average</option>
+            <option>Excellent</option>
+            <option>Good</option>
+            <option>Yet To Be Constructed</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="flooring">Flooring</label>
+          <select name="flooring" class="form-control">
+            <option>Tiles Flooring</option>
+            <option>Wooden</option>
+            <option>Mosiac</option>
+            <option>Marble</option>
+            <option>Granite</option>
+            <option>PCC</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="doors">Doors</label>
+          <select name="doors" class="form-control">
+            <option>Wooden Framed Flush Doors</option>
+            <option>Iron</option>
+            <option>Steel</option>
+            <option>UPVC</option>
+            <option>MS Rolling Shutters</option>
+            <option>Glazed</option>
+            <option>Yet to be Installed</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="windows">Windows</label>
+          <select name="windows" class="form-control">
+            <option>Wooden Framed Flush Windows</option>
+            <option>Iron</option>
+            <option>Steel</option>
+            <option>UPVC</option>
+            <option>MS Rolling Shutters</option>
+            <option>Glazed</option>
+            <option>Yet to be Installed</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="fittings">Fitting</label>
+          <select name="fittings" class="form-control">
+            <option>ISI Brand Fitting</option>
+            <option>Ordinary</option>
+            <option>Local</option>
+            <option>None</option>
+            <option>Under Construction</option>
+            <option>Proposed ISI Branded Fitting</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="marketability">How is the Marketability</label>
+          <select name="marketability" class="form-control">
+            <option>Good</option>
+            <option>Average</option>
+            <option>Poor</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="positiveFactors">What are the factors favoring extra potential value?</label>
+          <select name="positiveFactors" class="form-control">
+            <option>New Construction</option>
+            <option>Amenities</option>
+            <option>Connectivity</option>
+            <option>Near to Metro</option>
+            <option>None</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="negativeFactors">Any negative factors observed affecting market value?</label>
+          <select name="negativeFactors" class="form-control">
+            <option>Proximity To Slums</option>
+            <option>Sewer Drain</option>
+            <option>Narrow Approach Road</option>
+            <option>Dead End</option>
+            <option>Close to Railway Line</option>
+            <option>Near to HT Lines</option>
+            <option>NA</option>
+            <option>Not At The Time of Visit</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="ward">Ward</label>
+          <input type="text" name="ward" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="rate">Rate</label>
+          <input type="text" name="rate" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="value">Value</label>
+          <input type="text" name="value" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="dealer">Dealer</label>
+          <input type="text" name="dealer" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="valuer">Valuer</label>
+          <input type="text" name="valuer" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="reportLink">Report Link</label>
+          <input type="text" name="reportLink" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="reportDate">Date of Report</label>
+          <input type="date" name="reportDate" class="form-control" />
+        </div>
+  
+        <div class="form-group">
+          <label for="reportStatus">Status</label>
+          <select name="reportStatus" class="form-control">
+            <option>Final</option>
+            <option>Draft</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="propertyFacing">Property Facing</label>
+          <select name="propertyFacing" class="form-control">
+            <option>North</option>
+            <option>South</option>
+            <option>East</option>
+            <option>West</option>
+            <option>North-East</option>
+            <option>North-West</option>
+            <option>South-East</option>
+            <option>South-West</option>
+          </select>
+        </div>
+  
+  
+  
+        <!-- Add the rest of the fields the same way... -->
+  
+        <button type="submit" class="btn">
+          Submit Form
+        </button>
+      </form>
+  
+      <a href="/dashboard/drafter" class="back-link">
+        ← Back to Dashboard
+      </a>
     </div>
-    
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="alert">
-        <%= error %>
-      </div>
-    <% } %>
-    
-    <form action="/dashboard/drafter/submit/form1" method="POST">
-      <div class="form-group">
-        <label for="field1">Field 1</label>
-        <input 
-          type="text" 
-          id="field1" 
-          name="field1" 
-          class="form-control" 
-          placeholder="Enter value for Field 1"
-          required
-        >
-      </div>
-      
-      <div class="form-group">
-        <label for="field2">Field 2</label>
-        <input 
-          type="text" 
-          id="field2" 
-          name="field2" 
-          class="form-control" 
-          placeholder="Enter value for Field 2"
-          required
-        >
-      </div>
-      
-      <button type="submit" class="btn">
-        Submit Form
-      </button>
-    </form>
-    
-    <a href="/dashboard/drafter" class="back-link">
-      ← Back to Dashboard
-    </a>
-  </div>
-</body>
+  </body>  
 </html>
