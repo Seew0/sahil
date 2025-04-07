@@ -9,27 +9,31 @@ const drafterRoutes = require('./drafter');
 const checkerRoutes = require('./checker');
 
 // Mount routes
+router.use('/auth', authRoutes);
 router.use('/', authRoutes);
-router.use('/dashboard', ensureAuthenticated, (req, res, next) => {
-    // Common dashboard middleware
-    res.locals.user = req.session.user;
-    next();
-});
 
-// Dashboard sub-routes
-router.use('/dashboard/admin', adminRoutes);
-router.use('/dashboard/drafter', drafterRoutes);
-router.use('/dashboard/checker', checkerRoutes);
-
-// Main dashboard route
+// Add this at the VERY TOP of your routes/index.js
+// Dashboard redirect logic
 router.get('/dashboard', ensureAuthenticated, (req, res) => {
     const { role } = req.session.user;
-    const title = `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`;
-    
-    res.render(`dashboards/${role.toLowerCase()}`, {
-        title,
-        user: req.session.user
-    });
+    res.redirect(`/dashboard/${role}`);
+});
+
+// Role-specific routes
+router.use('/dashboard/admin', ensureAuthenticated, adminRoutes);
+router.use('/dashboard/drafter', ensureAuthenticated, drafterRoutes);
+router.use('/dashboard/checker', ensureAuthenticated, checkerRoutes);
+
+// Fallback for invalid roles
+router.get('/dashboard/:role', ensureAuthenticated, (req, res) => {
+    const validRoles = ['admin', 'drafter', 'checker'];
+    if (!validRoles.includes(req.params.role)) {
+        return res.status(404).render('error', { 
+            title: 'Not Found',
+            message: 'Invalid dashboard role'
+        });
+    }
+    res.redirect(`/dashboard/${req.params.role}`);
 });
 
 module.exports = router;

@@ -1,185 +1,472 @@
-<h1>Checker Dashboard</h1>
-<p>Welcome, <%= user.email %></p>
-
-<% if (typeof success !== 'undefined') { %>
-  <div class="alert alert-<%= success === 'approved' ? 'success' : 'warning' %>">
-    Submission <%= success === 'approved' ? 'approved' : 'rejected' %> successfully!
-  </div>
-<% } %>
-
-<div class="form-type-tabs">
-  <button class="tab-btn active" data-form="form1">Form 1</button>
-  <button class="tab-btn" data-form="form2">Form 2</button>
-  <button class="tab-btn" data-form="form3">Form 3</button>
-</div>
-
-<div class="submissions-list">
-  <% ['form1', 'form2', 'form3'].forEach(formType => { %>
-    <div class="form-content <%= formType === 'form1' ? 'active' : '' %>" id="<%= formType %>-content">
-      <% if (submissions[formType] && submissions[formType].length > 0) { %>
-        <% submissions[formType].forEach(sub => { %>
-          <div class="submission-card">
-            <div class="submission-header">
-              <h3>Form: <%= formType.toUpperCase() %></h3>
-              <span class="badge badge-<%= (sub[5] || 'Pending') === 'Pending' ? 'warning' : 
-                                          (sub[5] === 'Approved' ? 'success' : 'danger') %>">
-                <%= sub[5] || 'Pending' %>
-              </span>
-            </div>
-            
-            <div class="submission-details">
-              <p><strong>Drafter:</strong> <%= sub[1] || 'Unknown' %></p>
-              <p><strong>Submitted:</strong> <%= sub[0] ? new Date(sub[0]).toLocaleString() : 'Unknown date' %></p>
-              
-              <form action="/dashboard/approve/<%= formType %>/<%= sub[0] %>" method="POST">
-                <div class="form-data">
-                  <h4>Form Data:</h4>
-                  <div class="editable-fields">
-                    <div class="form-group">
-                      <label>Field 1:</label>
-                      <input type="text" name="field1" value="<%= sub[2] || '' %>">
-                    </div>
-                    <div class="form-group">
-                      <label>Field 2:</label>
-                      <input type="text" name="field2" value="<%= sub[3] || '' %>">
-                    </div>
-                    <div class="form-group">
-                      <label>Field 3:</label>
-                      <input type="text" name="field3" value="<%= sub[4] || '' %>">
-                    </div>
-                  </div>
-                </div>
-
-                <% if (sub[6]) { %>
-                  <div class="checker-comments">
-                    <h4>Previous Comments:</h4>
-                    <p><%= sub[6] %></p>
-                  </div>
-                <% } %>
-
-                <% if ((sub[5] || 'Pending') === 'Pending') { %>
-                  <div class="checker-actions">
-                    <div class="form-group">
-                      <label>Your Comments:</label>
-                      <textarea name="comments" class="form-control" placeholder="Enter comments..."></textarea>
-                    </div>
-                    <div class="action-buttons">
-                      <button type="submit" class="btn btn-success">Approve</button>
-                      <button type="button" class="btn btn-danger" 
-                        onclick="event.preventDefault(); document.getElementById('reject-form-<%= formType %>-<%= sub[0] %>').submit()">
-                        Reject
-                      </button>
-                    </div>
-                  </div>
-                <% } else { %>
-                  <div class="approval-info">
-                    <p><strong>Processed by:</strong> <%= sub[7] || 'System' %></p>
-                    <% if (sub[8]) { %>
-                      <p><strong>On:</strong> <%= new Date(sub[8]).toLocaleString() %></p>
-                    <% } %>
-                  </div>
-                <% } %>
-              </form>
-              
-              <form id="reject-form-<%= formType %>-<%= sub[0] %>" 
-                    action="/dashboard/reject/<%= formType %>/<%= sub[0] %>" 
-                    method="POST" 
-                    class="d-none">
-                <input type="hidden" name="field1" value="<%= sub[2] || '' %>">
-                <input type="hidden" name="field2" value="<%= sub[3] || '' %>">
-                <input type="hidden" name="field3" value="<%= sub[4] || '' %>">
-                <input type="hidden" name="comments" value="">
-              </form>
-            </div>
-          </div>
-        <% }); %>
-      <% } else { %>
-        <div class="alert alert-info">
-          No pending <%= formType %> submissions to review.
-        </div>
-      <% } %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checker Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #e6e9f9;
+      --danger: #ef233c;
+      --danger-light: #fde8ea;
+      --warning: #f8961e;
+      --warning-light: #fef3e6;
+      --success: #4cc9f0;
+      --success-light: #e6f7ff;
+      --text: #2b2d42;
+      --text-light: #6c757d;
+      --light: #f8f9fa;
+      --border: #e9ecef;
+      --radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7ff;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .checker-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    
+    .checker-header {
+      margin-bottom: 2rem;
+    }
+    
+    .checker-header h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .checker-header p {
+      color: var(--text-light);
+      font-size: 1rem;
+    }
+    
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .alert-success {
+      background-color: var(--success-light);
+      color: #006d9c;
+      border-left: 4px solid var(--success);
+    }
+    
+    .alert-warning {
+      background-color: var(--warning-light);
+      color: #b35900;
+      border-left: 4px solid var(--warning);
+    }
+    
+    .alert-info {
+      background-color: var(--light);
+      color: var(--text-light);
+      border-left: 4px solid var(--border);
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-light);
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: transparent;
+      transition: all 0.2s ease;
+    }
+    
+    .tab-btn.active {
+      color: var(--primary);
+    }
+    
+    .tab-btn.active::after {
+      background-color: var(--primary);
+    }
+    
+    .form-content {
+      display: none;
+    }
+    
+    .form-content.active {
+      display: block;
+    }
+    
+    .submission-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    
+    .submission-header {
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .submission-header h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .badge-warning {
+      background-color: var(--warning-light);
+      color: #b35900;
+    }
+    
+    .badge-success {
+      background-color: var(--success-light);
+      color: #006d9c;
+    }
+    
+    .badge-danger {
+      background-color: var(--danger-light);
+      color: var(--danger);
+    }
+    
+    .submission-details {
+      padding: 1.5rem;
+    }
+    
+    .submission-meta {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .submission-meta p {
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+    
+    .submission-meta strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    
+    .form-data {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-data h4 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+    
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .checker-comments {
+      background-color: var(--light);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .checker-comments h4 {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+    }
+    
+    .checker-comments p {
+      color: var(--text);
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex: 1;
+    }
+    
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background-color: #3ab5db;
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #d91a32;
+    }
+    
+    .approval-info {
+      background-color: var(--light);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+    }
+    
+    .approval-info p {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+    
+    .approval-info strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    
+    .d-none {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .tabs {
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+      
+      .submission-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="checker-container">
+    <div class="checker-header">
+      <h1>Checker Dashboard</h1>
+      <p>Welcome, <strong><%= user.email %></strong></p>
     </div>
-  <% }); %>
-</div>
+    
+    <% if (typeof success !== 'undefined') { %>
+      <div class="alert alert-<%= success === 'approved' ? 'success' : 'warning' %>">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <% if (success === 'approved') { %>
+            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <% } else { %>
+            <path d="M12 9V11M12 15H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <% } %>
+        </svg>
+        Submission <%= success === 'approved' ? 'approved' : 'rejected' %> successfully!
+      </div>
+    <% } %>
+    
+    <div class="tabs">
+      <button class="tab-btn <%= activeTab === 'form1' ? 'active' : '' %>" data-form="form1">Form 1</button>
+      <button class="tab-btn <%= activeTab === 'form2' ? 'active' : '' %>" data-form="form2">Form 2</button>
+      <button class="tab-btn <%= activeTab === 'form3' ? 'active' : '' %>" data-form="form3">Form 3</button>
+    </div>
+    
+    <div class="submissions-list">
+      <% ['form1', 'form2', 'form3'].forEach(formType => { %>
+        <div class="form-content <%= formType === 'form1' ? 'active' : '' %>" id="<%= formType %>-content">
+          <% if (submissions[formType] && submissions[formType].length > 0) { %>
+            <% submissions[formType].forEach(sub => { %>
+              <div class="submission-card">
+                <div class="submission-header">
+                  <h3><%= formType.toUpperCase() %> Submission</h3>
+                  <span class="badge badge-<%= (sub[5] || 'Pending') === 'Pending' ? 'warning' : 
+                                          (sub[5] === 'Approved' ? 'success' : 'danger') %>">
+                    <%= sub[5] || 'Pending' %>
+                  </span>
+                </div>
+                
+                <div class="submission-details">
+                  <div class="submission-meta">
+                    <p><strong>Drafter:</strong> <%= sub[1] || 'Unknown' %></p>
+                    <p><strong>Submitted:</strong> <%= sub[0] ? new Date(sub[0]).toLocaleString() : 'Unknown date' %></p>
+                  </div>
+                  
+                  <form action="/dashboard/approve/<%= formType %>/<%= sub[0] %>" method="POST">
+                    <div class="form-data">
+                      <h4>Form Data</h4>
+                      <div class="form-group">
+                        <label>Field 1</label>
+                        <input type="text" name="field1" value="<%= sub[2] || '' %>" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Field 2</label>
+                        <input type="text" name="field2" value="<%= sub[3] || '' %>" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Field 3</label>
+                        <input type="text" name="field3" value="<%= sub[4] || '' %>" class="form-control">
+                      </div>
+                    </div>
 
-<script>
-  // Tab functionality
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      // Update active tab
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      // Show corresponding content
-      document.querySelectorAll('.form-content').forEach(content => {
-        content.style.display = 'none';
+                    <% if (sub[6]) { %>
+                      <div class="checker-comments">
+                        <h4>Previous Comments</h4>
+                        <p><%= sub[6] %></p>
+                      </div>
+                    <% } %>
+
+                    <% if ((sub[5] || 'Pending') === 'Pending') { %>
+                      <div class="form-group">
+                        <label>Your Comments</label>
+                        <textarea name="comments" class="form-control" placeholder="Enter your comments here..."></textarea>
+                      </div>
+                      <div class="action-buttons">
+                        <button type="submit" class="btn btn-success">Approve</button>
+                        <button type="button" class="btn btn-danger" 
+                          onclick="event.preventDefault(); document.getElementById('reject-form-<%= formType %>-<%= sub[0] %>').submit()">
+                          Reject
+                        </button>
+                      </div>
+                    <% } else { %>
+                      <div class="approval-info">
+                        <p><strong>Processed by:</strong> <%= sub[7] || 'System' %></p>
+                        <% if (sub[8]) { %>
+                          <p><strong>On:</strong> <%= new Date(sub[8]).toLocaleString() %></p>
+                        <% } %>
+                      </div>
+                    <% } %>
+                  </form>
+                  
+                  <form id="reject-form-<%= formType %>-<%= sub[0] %>" 
+                        action="/dashboard/reject/<%= formType %>/<%= sub[0] %>" 
+                        method="POST" 
+                        class="d-none">
+                    <input type="hidden" name="field1" value="<%= sub[2] || '' %>">
+                    <input type="hidden" name="field2" value="<%= sub[3] || '' %>">
+                    <input type="hidden" name="field3" value="<%= sub[4] || '' %>">
+                    <input type="hidden" name="comments" value="">
+                  </form>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="alert alert-info">
+              No pending <%= formType %> submissions to review.
+            </div>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <script>
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        // Update active tab
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show corresponding content
+        document.querySelectorAll('.form-content').forEach(content => {
+          content.style.display = 'none';
+        });
+        document.getElementById(`${this.dataset.form}-content`).style.display = 'block';
       });
-      document.getElementById(`${this.dataset.form}-content`).style.display = 'block';
     });
-  });
 
-  // Copy form data to reject form
-  document.querySelectorAll('[onclick^="event.preventDefault()"]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const formId = this.getAttribute('onclick').match(/'reject-form-([^']+)'/)[1];
-      const form = document.querySelector(`form[id="reject-form-${formId}"]`);
-      const textarea = this.closest('.checker-actions').querySelector('textarea');
-      
-      form.querySelector('input[name="comments"]').value = textarea.value;
-      form.submit();
+    // Copy form data to reject form
+    document.querySelectorAll('[onclick^="event.preventDefault()"]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const formId = this.getAttribute('onclick').match(/'reject-form-([^']+)'/)[1];
+        const form = document.querySelector(`form[id="reject-form-${formId}"]`);
+        const textarea = this.closest('.submission-details').querySelector('textarea');
+        
+        form.querySelector('input[name="comments"]').value = textarea.value;
+        form.submit();
+      });
     });
-  });
-</script>
-
-<style>
-  .form-type-tabs {
-    display: flex;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .form-content {
-    display: none;
-  }
-
-  .form-content.active {
-    display: block;
-  }
-  
-  .tab-btn {
-    padding: 10px 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    border-bottom: 3px solid transparent;
-  }
-  
-  .tab-btn.active {
-    border-bottom-color: #4CAF50;
-    color: #4CAF50;
-  }
-  
-  .editable-fields {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 4px;
-  }
-  
-  .editable-fields .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .editable-fields input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-  }
-</style>
+  </script>
+</body>
+</html>

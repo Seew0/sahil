@@ -1,15 +1,203 @@
-<h1>Login</h1>
-<% if (error) { %>
-  <div class="error"><%= error %></div>
-<% } %>
-<form action="/login" method="POST">
-  <div>
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Form Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --error: #ef233c;
+      --success: #4cc9f0;
+      --text: #2b2d42;
+      --light: #f8f9fa;
+      --border: #e9ecef;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f7ff;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    
+    .login-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 420px;
+      padding: 2.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .login-header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .login-header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    
+    .login-header p {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    
+    .error-message {
+      background-color: rgba(239, 35, 60, 0.1);
+      color: var(--error);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      border-left: 3px solid var(--error);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .error-message::before {
+      content: "⚠";
+    }
+    
+    .form-group {
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #495057;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 0.875rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 0.5rem;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .footer-text {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.875rem;
+      color: #6c757d;
+    }
+    
+    .footer-text a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .footer-text a:hover {
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 1.5rem;
+      }
+      
+      .login-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to your account to continue</p>
+    </div>
+    
+    <% if (error) { %>
+      <div class="error-message"><%= error %></div>
+    <% } %>
+    
+    <form action="/login" method="POST">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="form-control" 
+          placeholder="you@example.com" 
+          required
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="••••••••" 
+          required
+        >
+      </div>
+      
+      <button type="submit" class="btn">Sign In</button>
+    </form>
+    
+    <p class="footer-text">
+      Don't have an account? <a href="/register">Request access</a>
+    </p>
   </div>
-  <div>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-  </div>
-  <button type="submit">Login</button>
-</form>
+</body>
+</html>

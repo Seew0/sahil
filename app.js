@@ -4,6 +4,8 @@ const session = require('express-session');
 const path = require('path');
 const bodyParser = require('body-parser');
 const expressLayouts = require('express-ejs-layouts');
+const mainRouter = require('./routes');
+
 
 const app = express();
 
@@ -19,6 +21,7 @@ app.set('layout', './layouts/main');  // Note the './' prefix for consistent pat
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -38,7 +41,6 @@ app.use((req, res, next) => {
 });
 
 // Import the centralized router
-const mainRouter = require('./routes');
 
 // Use the main router
 app.use('/', mainRouter);
